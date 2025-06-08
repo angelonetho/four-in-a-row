@@ -29,7 +29,6 @@ public class Game extends JFrame {
 
         // Tenta carregar dados do disco, se não, cria novo
         loadRankingFromDisk();
-        showRankingWindow();
 
         player1 = ranking.addPlayer(new Player(name1, 0, 0, LocalDateTime.now()));
         player2 = ranking.addPlayer(new Player(name2, 0, 0, LocalDateTime.now()));
