@@ -47,6 +47,7 @@ public class Game extends JFrame {
         setTitle("Ligue-4");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(7 * 80 + 16, 6 * 80 + 39); // conta bordas
+        setResizable(false);
         setLocationRelativeTo(null);
 
         setLayout(new BorderLayout());
