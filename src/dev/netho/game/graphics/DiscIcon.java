@@ -15,6 +15,11 @@ public class DiscIcon implements Icon {
 
     @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {
+
+        // Centraliza o ícone com o espaçamento adicional
+        x+=10;
+        y+=10;
+
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
@@ -30,7 +35,7 @@ public class DiscIcon implements Icon {
 
         // contorno preto
         g2.setColor(Color.BLACK);
-        g2.setStroke(new BasicStroke(3));
+        g2.setStroke(new BasicStroke((float) size /13));
         g2.drawOval(x, y, size, size);
 
         g2.dispose();
@@ -38,11 +43,11 @@ public class DiscIcon implements Icon {
 
     @Override
     public int getIconWidth() {
-        return size;
+        return size + 16;
     }
 
     @Override
     public int getIconHeight() {
-        return size;
+        return size + 16;
     }
 }

@@ -67,7 +67,7 @@ public class Game extends JFrame {
         add(new StatusPanel(
                 player1.getName(), new DiscIcon(PLAYER1_COLOR, 80),
                 player2.getName(), new DiscIcon(PLAYER2_COLOR, 80),
-                boardPanel.getPreferredSize().height/2 - 56,
+                boardPanel.getPreferredSize().height/2 - 32,
                 BACKGROUND_COLOR
         ), BorderLayout.SOUTH);
 
