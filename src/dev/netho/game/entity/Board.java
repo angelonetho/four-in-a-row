@@ -54,6 +54,18 @@ public class Board {
         return count == 4;
     }
 
+    public boolean checkDrawCondition() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (grid[i][j] == Disc.EMPTY) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public boolean checkWinCondition(Disc disc) {
         // checa em todas as posições todas as direções
         for (int i = 0; i < ROWS; i++) {

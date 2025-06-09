@@ -85,6 +85,17 @@ public class Game extends JFrame {
                 // repaint para atualizar os gráficos do tabuleiro
                 boardPanel.repaint();
 
+                // checa empate
+                if (tabuleiro.checkDrawCondition()) {
+                    JOptionPane.showMessageDialog(boardPanel, "Empate!", "Fim de jogo", JOptionPane.INFORMATION_MESSAGE);
+                    player1.incrementVictories();
+                    player2.incrementVictories();
+
+                    saveRankingToDisk();
+                    showRankingWindow();
+                    System.exit(0);
+                }
+
                 // checa vitória
                 if (tabuleiro.checkWinCondition(currentDisc)) {
                     String winner = (currentDisc == Disc.PLAYER1 ? player1.getName() : player2.getName());
@@ -106,6 +117,7 @@ public class Game extends JFrame {
                 }
 
                 // troca de jogador/disco
+
                 currentDisc = (currentDisc == Disc.PLAYER1 ? Disc.PLAYER2 : Disc.PLAYER1);
             }
         });
@@ -185,6 +197,7 @@ public class Game extends JFrame {
         SwingUtilities.invokeLater(() -> {
             String p1 = JOptionPane.showInputDialog("Nome do Jogador 1:");
             String p2 = JOptionPane.showInputDialog("Nome do Jogador 2:");
+
             new Game(p1, p2);
         });
     }
