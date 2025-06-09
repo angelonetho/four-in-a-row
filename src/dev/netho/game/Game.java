@@ -5,6 +5,9 @@ import dev.netho.game.entity.Disc;
 import dev.netho.game.entity.Player;
 import dev.netho.game.entity.Ranking;
 import dev.netho.game.exception.IllegalMoveException;
+import dev.netho.game.graphics.BoardPanel;
+import dev.netho.game.graphics.DiscIcon;
+import dev.netho.game.graphics.StatusPanel;
 
 import javax.swing.*;
 
@@ -18,12 +21,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static dev.netho.game.graphics.DialogGenerator.inputPlayer;
+import static dev.netho.game.graphics.DialogGenerator.showWinner;
+
 public class Game extends JFrame {
     private final Ranking ranking = new Ranking();
     private final Board tabuleiro = new Board();
     private final Player player1;
     private final Player player2;
     private Disc currentDisc = Disc.PLAYER1;
+
+    private final static int PADDING = 16;
+    private final static Color PLAYER1_COLOR = Color.RED;
+    private final static Color PLAYER2_COLOR = new Color(0,203,254);
+    private final static Color BACKGROUND_COLOR = new Color(0, 82, 155);
 
     public Game(String name1, String name2) {
 
@@ -33,43 +44,38 @@ public class Game extends JFrame {
         player1 = ranking.addPlayer(new Player(name1, 0, 0, LocalDateTime.now()));
         player2 = ranking.addPlayer(new Player(name2, 0, 0, LocalDateTime.now()));
 
-        setTitle("Ligue 4");
+        setTitle("Ligue-4");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(7 * 80 + 16, 6 * 80 + 39); // conta bordas
         setLocationRelativeTo(null);
 
+        setLayout(new BorderLayout());
+
         // Gráficos
-        JPanel boardPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                // desenha fundo azul e círculos
-                for (int row = 0; row < Board.ROWS; row++) {
-                    for (int col = 0; col < Board.COLS; col++) {
-                        // quadrado de fundo
-                        g.setColor(Color.ORANGE);
-                        g.fillRect(col * 80, row * 80, 80, 80);
 
-                        // disco
-                        Disc d = tabuleiro.getGrid()[row][col];
-                        switch (d) {
-                            case EMPTY  -> g.setColor(Color.WHITE);
-                            case PLAYER1-> g.setColor(Color.RED);
-                            case PLAYER2-> g.setColor(Color.CYAN);
-                        }
-                        g.fillOval(col * 80 + 10, row * 80 + 10, 60, 60);
-                    }
-                }
-            }
+        BoardPanel boardPanel = new BoardPanel(
+                tabuleiro,
+                PADDING,
+                BACKGROUND_COLOR,
+                BACKGROUND_COLOR,    // furo usa mesma cor do fundo
+                PLAYER1_COLOR,
+                PLAYER2_COLOR
+        );
 
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(Board.COLS * 80, Board.ROWS * 80);
-            }
-        };
+        add(boardPanel, BorderLayout.CENTER);
+        add(new StatusPanel(
+                player1.getName(), new DiscIcon(PLAYER1_COLOR, 80),
+                player2.getName(), new DiscIcon(PLAYER2_COLOR, 80),
+                boardPanel.getPreferredSize().height/2 - 56,
+                BACKGROUND_COLOR
+        ), BorderLayout.SOUTH);
+
+        pack();
+        setVisible(true);
 
         // Mouse listener para inserção
         boardPanel.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 int coluna = (e.getX() / 80);
@@ -99,10 +105,17 @@ public class Game extends JFrame {
                 // checa vitória
                 if (tabuleiro.checkWinCondition(currentDisc)) {
                     String winner = (currentDisc == Disc.PLAYER1 ? player1.getName() : player2.getName());
-                    JOptionPane.showMessageDialog(boardPanel, winner + " venceu!", "Fim de jogo", JOptionPane.INFORMATION_MESSAGE);
+
+                    DiscIcon winIcon = new DiscIcon(
+                            currentDisc == Disc.PLAYER1
+                                    ? PLAYER1_COLOR
+                                    : PLAYER2_COLOR,
+                            40
+                    );
+
+                    showWinner(boardPanel, winner, winIcon);
 
                     // Atualiza as estatística
-
                     if (currentDisc == Disc.PLAYER1) {
                         player1.incrementVictories();
                         player2.incrementDefeats();
@@ -117,14 +130,9 @@ public class Game extends JFrame {
                 }
 
                 // troca de jogador/disco
-
                 currentDisc = (currentDisc == Disc.PLAYER1 ? Disc.PLAYER2 : Disc.PLAYER1);
             }
         });
-
-        add(boardPanel);
-        pack();
-        setVisible(true);
     }
 
     private void showRankingWindow() {
@@ -192,13 +200,19 @@ public class Game extends JFrame {
         }
     }
 
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            String p1 = JOptionPane.showInputDialog("Nome do Jogador 1:");
-            String p2 = JOptionPane.showInputDialog("Nome do Jogador 2:");
+
+            // ícones para cada jogador
+            DiscIcon redDisc  = new DiscIcon(PLAYER1_COLOR, 40);
+            DiscIcon blueDisc = new DiscIcon(PLAYER2_COLOR, 40);
+
+            String p1 = inputPlayer("Nome do Jogador 1:", redDisc, "Jogador 1");
+
+            String p2 = inputPlayer("Nome do Jogador 2:", blueDisc, "Jogador 2");
 
             new Game(p1, p2);
         });
     }
+
 }
