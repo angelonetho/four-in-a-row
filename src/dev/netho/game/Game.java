@@ -5,9 +5,9 @@ import dev.netho.game.entity.Disc;
 import dev.netho.game.entity.Player;
 import dev.netho.game.entity.Ranking;
 import dev.netho.game.exception.IllegalMoveException;
-import dev.netho.game.graphics.BoardPanel;
-import dev.netho.game.graphics.DiscIcon;
-import dev.netho.game.graphics.StatusPanel;
+import dev.netho.game.graphic.BoardPanel;
+import dev.netho.game.graphic.DiscIcon;
+import dev.netho.game.graphic.StatusPanel;
 
 import javax.swing.*;
 
@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static dev.netho.game.graphics.DialogGenerator.inputPlayer;
-import static dev.netho.game.graphics.DialogGenerator.showWinner;
+import static dev.netho.game.graphic.DialogGenerator.inputPlayer;
+import static dev.netho.game.graphic.DialogGenerator.showWinner;
 
 public class Game extends JFrame {
     private final Ranking ranking = new Ranking();

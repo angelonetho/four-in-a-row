@@ -1,4 +1,4 @@
-package dev.netho.game.graphics;
+package dev.netho.game.graphic;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,4 +1,4 @@
-package dev.netho.game.graphics;
+package dev.netho.game.graphic;
 
 import dev.netho.game.entity.Board;
 import dev.netho.game.entity.Disc;
