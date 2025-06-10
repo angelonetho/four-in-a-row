@@ -4,6 +4,7 @@ import dev.netho.game.entity.Board;
 import dev.netho.game.entity.Disc;
 import dev.netho.game.entity.Player;
 import dev.netho.game.entity.Ranking;
+import com.angelonetho.fourinrow.ranking.RankingEntry;
 import dev.netho.game.exception.IllegalMoveException;
 import dev.netho.game.graphic.BoardPanel;
 import dev.netho.game.graphic.DiscIcon;
@@ -199,6 +200,24 @@ public class Game extends JFrame {
                     "Erro ao salvar ranking: " + e.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void saveRankingToDisk() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("ranking.csv"))) {
+            writer.println("Jogador,Vitorias");
+
+            for (RankingEntry entry : ranking.getEntries()) {
+            String csvLine = entry.getPlayerName() + "," + entry.getWins();
+            writer.println(csvLine);
+        }
+
+            System.out.println("Ranking salvo com sucesso em CSV!");
+
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(null,
+                "Erro ao salvar ranking em CSV: " + e.getMessage(),
+                "Erro", JOptionPane.ERROR_MESSAGE);
+    }
     }
 
     public static void main(String[] args) {
