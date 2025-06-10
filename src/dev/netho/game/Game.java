@@ -4,11 +4,11 @@ import dev.netho.game.entity.Board;
 import dev.netho.game.entity.Disc;
 import dev.netho.game.entity.Player;
 import dev.netho.game.entity.Ranking;
-import com.angelonetho.fourinrow.ranking.RankingEntry;
 import dev.netho.game.exception.IllegalMoveException;
 import dev.netho.game.graphic.BoardPanel;
 import dev.netho.game.graphic.DiscIcon;
 import dev.netho.game.graphic.StatusPanel;
+
 
 import javax.swing.*;
 
@@ -170,51 +170,48 @@ public class Game extends JFrame {
     }
 
     private void loadRankingFromDisk() {
+    File rankingFile = new File("ranking.csv");
+    if (!rankingFile.exists()) {
+        System.out.println("Arquivo ranking.csv não encontrado. Um novo será criado.");
+        return;
+    }
 
-        File f = new File("ranking.bin");
-        if (!f.exists()) return;
+    try (BufferedReader reader = new BufferedReader(new FileReader(rankingFile))) {
+        this.ranking.getPlayers().clear();
 
-        System.out.println("Loading ranking from disk");
-        try (ObjectInputStream ois =
-                     new ObjectInputStream(new FileInputStream(f))) {
-            Ranking loaded = (Ranking) ois.readObject();
+        reader.readLine();
 
-            // substitui o ranking vazio pelo carregado
-            this.ranking.getPlayers().clear();
-            this.ranking.getPlayers().addAll(loaded.getPlayers());
-
-        } catch (IOException | ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Erro ao carregar ranking: " + e.getMessage(),
-                    "Erro", JOptionPane.ERROR_MESSAGE);
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts.length == 3) {
+                String name = parts[0];
+                int victories = Integer.parseInt(parts[1]);
+                int defeats = Integer.parseInt(parts[2]);
+                ranking.addPlayer(new Player(name, victories, defeats, LocalDateTime.now()));
+            }
         }
+        System.out.println("Ranking (CSV) carregado com sucesso!");
+
+    } catch (IOException | NumberFormatException e) {
+        JOptionPane.showMessageDialog(this,
+                "Erro ao carregar ranking do CSV: " + e.getMessage(),
+                "Erro", JOptionPane.ERROR_MESSAGE);
+    }
     }
 
     private void saveRankingToDisk() {
-        try (ObjectOutputStream oos =
-                     new ObjectOutputStream(new FileOutputStream("ranking.bin"))) {
-            oos.writeObject(ranking);
-            System.out.println("Ranking salvo com sucesso!");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Erro ao salvar ranking: " + e.getMessage(),
-                    "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    try (PrintWriter writer = new PrintWriter(new FileWriter("ranking.csv"))) {
+        writer.println("Nome,Vitorias,Derrotas");
 
-    private void saveRankingToDisk() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("ranking.csv"))) {
-            writer.println("Jogador,Vitorias");
-
-            for (RankingEntry entry : ranking.getEntries()) {
-            String csvLine = entry.getPlayerName() + "," + entry.getWins();
+        for (Player player : ranking.getPlayers()) {
+            String csvLine = player.getName() + "," + player.getVictories() + "," + player.getDefeats();
             writer.println(csvLine);
         }
-
-            System.out.println("Ranking salvo com sucesso em CSV!");
+        System.out.println("Ranking salvo com sucesso em CSV!");
 
     } catch (IOException e) {
-        JOptionPane.showMessageDialog(null,
+        JOptionPane.showMessageDialog(this,
                 "Erro ao salvar ranking em CSV: " + e.getMessage(),
                 "Erro", JOptionPane.ERROR_MESSAGE);
     }
