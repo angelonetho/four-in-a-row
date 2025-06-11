@@ -9,6 +9,7 @@ import dev.netho.game.graphic.BoardPanel;
 import dev.netho.game.graphic.DiscIcon;
 import dev.netho.game.graphic.StatusPanel;
 
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -136,52 +137,56 @@ public class Game extends JFrame {
         });
     }
 
-    private void showRankingWindow() {
-        // copia e ordena
-        List<Player> copia = new ArrayList<>(ranking.getPlayers());
-        copia.sort(Comparator.comparingInt(Player::getVictories).reversed());
+    // MÉTODO DA JANELA DE RANKING ATUALIZADO COM BOTÃO
+private void showRankingWindow() {
+    List<Player> copia = new ArrayList<>(ranking.getPlayers());
+    copia.sort(Comparator.comparingInt(Player::getVictories).reversed());
 
-        // prepara colunas e dados
-        String[] colNames = {"Posição","Nome","Vitórias","Derrotas","Primeiro Jogo"};
-        Object[][] data = new Object[copia.size()][5];
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        for (int i = 0; i < copia.size(); i++) {
-            Player p = copia.get(i);
-            data[i][0] = (i+1);
-            data[i][1] = p.getName();
-            data[i][2] = p.getVictories();
-            data[i][3] = p.getDefeats();
-            data[i][4] = p.getFirstPlayedAt().format(fmt);
-        }
+    String[] colNames = {"Posição", "Nome", "Vitórias", "Derrotas", "Primeiro Jogo"};
+    Object[][] data = new Object[copia.size()][5];
+    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    for (int i = 0; i < copia.size(); i++) {
+        Player p = copia.get(i);
+        data[i][0] = (i + 1);
+        data[i][1] = p.getName();
+        data[i][2] = p.getVictories();
+        data[i][3] = p.getDefeats();
+        data[i][4] = p.getFirstPlayedAt().format(fmt);
+    }
 
-        // tabela
-        JTable table = new JTable(data, colNames);
-        table.setEnabled(false);
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(500, Math.min(300, copia.size()*25 + 30)));
+    JTable table = new JTable(data, colNames);
+    table.setEnabled(false);
+    JScrollPane scroll = new JScrollPane(table);
+    scroll.setPreferredSize(new Dimension(500, Math.min(300, copia.size() * 25 + 30)));
 
-        JOptionPane.showMessageDialog(
-                this,
-                scroll,
-                "🏆 Ranking de Jogadores",
-                JOptionPane.PLAIN_MESSAGE
-        );
+    String[] options = {"Exportar para CSV", "Fechar"};
+
+    int choice = JOptionPane.showOptionDialog(
+            this,
+            scroll,
+            "🏆 Ranking de Jogadores",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[1]
+    );
+
+    if (choice == 0) {
+        exportRankingToCSV();
+    }
+    
     }
 
     private void loadRankingFromDisk() {
-
         File f = new File("ranking.bin");
         if (!f.exists()) return;
 
-        System.out.println("Loading ranking from disk");
-        try (ObjectInputStream ois =
-                     new ObjectInputStream(new FileInputStream(f))) {
+        System.out.println("Carregando ranking do disco...");
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
             Ranking loaded = (Ranking) ois.readObject();
-
-            // substitui o ranking vazio pelo carregado
             this.ranking.getPlayers().clear();
             this.ranking.getPlayers().addAll(loaded.getPlayers());
-
         } catch (IOException | ClassNotFoundException e) {
             JOptionPane.showMessageDialog(this,
                     "Erro ao carregar ranking: " + e.getMessage(),
@@ -190,13 +195,40 @@ public class Game extends JFrame {
     }
 
     private void saveRankingToDisk() {
-        try (ObjectOutputStream oos =
-                     new ObjectOutputStream(new FileOutputStream("ranking.bin"))) {
-            oos.writeObject(ranking);
-            System.out.println("Ranking salvo com sucesso!");
+        System.out.println("Salvando ranking no disco...");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("ranking.bin"))) {
+            oos.writeObject(this.ranking);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
                     "Erro ao salvar ranking: " + e.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void exportRankingToCSV() {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter("ranking.csv"))) {
+            writer.println("Nome,Vitorias,Derrotas,DataCadastro");
+
+            for (Player player : ranking.getPlayers()) {
+                String dataFormatada = player.getFirstPlayedAt().format(fmt);
+
+                String csvLine = player.getName() + "," +
+                        player.getVictories() + "," +
+                        player.getDefeats() + "," +
+                        dataFormatada;
+                writer.println(csvLine);
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "Ranking exportado com sucesso para ranking.csv!",
+                    "Exportação Concluída",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Erro ao exportar ranking para CSV: " + e.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
