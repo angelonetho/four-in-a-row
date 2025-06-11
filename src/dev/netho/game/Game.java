@@ -206,11 +206,18 @@ private void showRankingWindow() {
     }
 
     private void exportRankingToCSV() {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
         try (PrintWriter writer = new PrintWriter(new FileWriter("ranking.csv"))) {
-            writer.println("Nome,Vitorias,Derrotas");
+            writer.println("Nome,Vitorias,Derrotas,DataCadastro");
 
             for (Player player : ranking.getPlayers()) {
-                String csvLine = player.getName() + "," + player.getVictories() + "," + player.getDefeats();
+                String dataFormatada = player.getFirstPlayedAt().format(fmt);
+
+                String csvLine = player.getName() + "," +
+                        player.getVictories() + "," +
+                        player.getDefeats() + "," +
+                        dataFormatada;
                 writer.println(csvLine);
             }
 
